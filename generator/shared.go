@@ -306,6 +306,7 @@ type GenOptsCommon struct {
 	ExcludeSpec                bool
 	DumpData                   bool
 	ValidateSpec               bool
+	AllowPathDuplicates        bool
 	FlattenOpts                *analysis.FlattenOpts
 	IsClient                   bool
 	defaultsEnsured            bool

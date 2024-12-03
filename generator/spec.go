@@ -37,7 +37,19 @@ func (g *GenOpts) validateAndFlattenSpec() (*loads.Document, error) {
 	// Validate if needed
 	if g.ValidateSpec {
 		log.Printf("validating spec %v", g.Spec)
-		validationErrors := validate.Spec(specDoc, strfmt.Default)
+
+		// Create the validator and apply the options
+		validator := validate.NewSpecValidator(specDoc.Schema(), strfmt.Default)
+		if g.GenOptsCommon.AllowPathDuplicates {
+			validator.Options.StrictPathParamUniqueness = false
+		}
+
+		// Validate and parse the errors
+		var validationErrors error
+		if resErr, _ := validator.Validate(specDoc); resErr.HasErrors() {
+			validationErrors = swaggererrors.CompositeValidationError(resErr.Errors...)
+		}
+
 		if validationErrors != nil {
 			str := fmt.Sprintf("The swagger spec at %q is invalid against swagger specification %s. see errors :\n",
 				g.Spec, specDoc.Version())
